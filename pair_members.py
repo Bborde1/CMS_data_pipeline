@@ -13,6 +13,7 @@ def pair_members(group=['Denise', 'Brandon', 'Talia', 'Jori', 'Isaac', 'Hanh']):
     pairings=[]
     
     #This assumes an even group size, can enforce later
+    assert len(group) % 2 == 0, "Group size is not even, add a member or empty string"
     
     while len(local_group) > 2:
         new_pair = []
