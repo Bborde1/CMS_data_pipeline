@@ -11,13 +11,16 @@ This file contains functions used to get data from various sources for the
 DS4A Data Engineering, Data Swan project
 """
 
+
 import requests
 import urllib3
 import pandas as pd
 import boto3 as b3
+from botocore.config import Config
 import yaml
 with open('./config.yaml', "r") as fl:
     config = yaml.safe_load(fl)
+
 
 s3_user = config.aws_user
 s3_key = config.aws_key
@@ -33,9 +36,14 @@ def get_cms_data_to_df(csv_links):
 
 
 def write_to_s3(to_write, bucket_location):
-    ds4a_s3 = b3.resource('s3')
-    bucket_object = ds4a_s3.Object(bucket_location, s3_key)
-    bucket_object.put(to_write)
+    # ds4a_s3 = b3.resource('s3', region='us-east-1', aws_access_key_id = s3_user, aws_secret_access_key=s3_key)
+    # bucket_object = ds4a_s3.Object(bucket_location, s3_key)
+    # bucket_object.put(to_write)
+
+    # Using client object instead
+    s3_client = b3.client('s3', aws_access_key_id=s3_user,
+                          aws_secret_access_key=s3_key)
+    s3_client.upload_fileobj(to_write, bucket_location)
     return print("Successfully wrote to S3 Bucket")
 
 
