@@ -11,7 +11,9 @@ This file contains functions used to get data from various sources for the
 DS4A Data Engineering, Data Swan project
 """
 
+# Imports
 
+# Load in necessary config variables
 import requests
 import pandas as pd
 import boto3 as b3
@@ -19,11 +21,10 @@ from botocore.config import Config
 import yaml
 with open('./config.yaml', "r") as fl:
     config = yaml.safe_load(fl)
-
-
 s3_user = config['cloud_acct']['aws_user']
 s3_key = config['cloud_acct']['aws_key']
 s3_bucket_name = config['cloud_acct']['bucket_name']
+s3_bucket_path = config['cloud_acct']['bucket_path']
 
 
 ######Getter functions########
@@ -60,4 +61,5 @@ for item, link in cms_links_test.items():
     item_content = response.content
     print("successfully pulled data and generated content")
     print("writing to S3")
-    write_to_s3(item_content, s3_bucket_name, f'cms_data/{item}_.csv')
+    write_to_s3(item_content, s3_bucket_name,
+                s3_bucket_path + f'{item}_.csv')
