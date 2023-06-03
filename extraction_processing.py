@@ -1,7 +1,7 @@
 """
 
 This file contains any functions that are used to do any data processing PRIOR to writing to S3.
-The goal is to maintain 
+The goal is to maintain a lower storage footprint, and reduce extraction and load times.
 
 """
 import pandas as pd
