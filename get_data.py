@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri May 12 14:50:38 2023
-
-@author: brandonborde
-"""
-
 """
 This file contains functions used to get data from various sources for the 
 DS4A Data Engineering, Data Swan project
@@ -17,7 +9,6 @@ DS4A Data Engineering, Data Swan project
 import requests
 import pandas as pd
 import boto3 as b3
-from botocore.config import Config
 import yaml
 with open('./config.yaml', "r") as fl:
     config = yaml.safe_load(fl)
@@ -28,13 +19,6 @@ s3_bucket_path = config['cloud_acct']['bucket_path']
 
 
 ######Getter functions########
-def get_cms_data_to_df(csv_links):
-    # Takes a list of csv links and returns a dictionary of
-    for item in csv_links:
-        cms_csv = pd.read_csv(item)
-    return cms_csv
-
-
 def write_to_s3(to_write, bucket_location, write_key):
     # Using client object instead
     s3_client = b3.client('s3',  aws_access_key_id=s3_user,
