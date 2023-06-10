@@ -33,7 +33,7 @@ cms_links = {'gen_2020': ['general_payment', 'https://download.cms.gov/openpayme
 cms_links_test = {
     'research_2020': ['research_payment', 'https://download.cms.gov/openpayments/PGYR20_P012023/OP_DTL_RSRCH_PGYR2020_P01202023.csv']}
 
-######Getter functions########
+######Helper functions########
 
 
 def write_to_s3(to_write, bucket_location, write_key, aws_user=s3_user, aws_secret=s3_key):
