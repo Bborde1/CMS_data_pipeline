@@ -21,6 +21,7 @@ def update_general_payments(columns_list, general_df):
     #note: corrects for any recipients at the same address, but in different suites
     updated_df['Recipient_Primary_Business_Street_Address'] = updated_df['Recipient_Primary_Business_Street_Address_Line1'] + updated_df['Recipient_Primary_Business_Street_Address_Line1']
     
+    # generate unique geographic id
     updated_df['geo_id'] = updated_df['Recipient_Primary_Business_Street_Address'].map(generate_geo_id)
     
     return updated_df
