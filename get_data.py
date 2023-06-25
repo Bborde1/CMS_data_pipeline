@@ -21,7 +21,7 @@ s3_bucket_path = config['cloud_acct']['bucket_path']
 
 
 ####Define script constants#######
-# All Data Links
+# ALL DATA
 cms_links = {'gen_2020': ['general_payment/', 'https://download.cms.gov/openpayments/PGYR20_P012023/OP_DTL_GNRL_PGYR2020_P01202023.csv'],
              'gen_2021': ['general_payment/', 'https://download.cms.gov/openpayments/PGYR21_P012023/OP_DTL_GNRL_PGYR2021_P01202023.csv'],
              'research_2020': ['research_payment/', 'https://download.cms.gov/openpayments/PGYR20_P012023/OP_DTL_RSRCH_PGYR2020_P01202023.csv'],
@@ -29,13 +29,9 @@ cms_links = {'gen_2020': ['general_payment/', 'https://download.cms.gov/openpaym
              'ownership_2020': ['ownership_payment/', 'https://download.cms.gov/openpayments/PGYR20_P012023/OP_DTL_OWNRSHP_PGYR2020_P01202023.csv'],
              'ownership_2021': ['ownership_payment/', 'https://download.cms.gov/openpayments/PGYR21_P012023/OP_DTL_OWNRSHP_PGYR2021_P01202023.csv']}
 
-# General Payments Data Only
-cms_gen_links_test = {'gen_2020': ['general_payment/', 'https://download.cms.gov/openpayments/PGYR20_P012023/OP_DTL_GNRL_PGYR2020_P01202023.csv'],
-                      'gen_2021': ['general_payment/', 'https://download.cms.gov/openpayments/PGYR21_P012023/OP_DTL_GNRL_PGYR2021_P01202023.csv']}
-
-# Single link to test
-cms_single_links_test = {'gen_2021': [
-    'general_payment/', 'https://download.cms.gov/openpayments/PGYR21_P012023/OP_DTL_GNRL_PGYR2021_P01202023.csv']}
+# GENERAL PAYMENTS
+cms_gen_links = {'gen_2020': ['general_payment/', 'https://download.cms.gov/openpayments/PGYR20_P012023/OP_DTL_GNRL_PGYR2020_P01202023.csv'],
+                 'gen_2021': ['general_payment/', 'https://download.cms.gov/openpayments/PGYR21_P012023/OP_DTL_GNRL_PGYR2021_P01202023.csv']}
 
 
 ######Helper functions########
@@ -66,7 +62,16 @@ def get_from_s3(to_get, bucket_location):
 #                 s3_bucket_path + link[0] + f'{item}_.csv')
 
 # Gets Data, and slices before writing to S3
-for item, link in cms_gen_links_test.items():
+
+def get_and_write_MIPS(bucket_location, write_key, aws_user=s3_user, aws_secret=s3_key, data_path="./mips_data/ec_score_file.csv"):
+    with open(data_path, "rb") as file:
+        s3_client = b3.client('s3',  aws_access_key_id=aws_user,
+                              aws_secret_access_key=aws_secret)
+        s3_client.upload_file(Body=file, Bucket=bucket_location, Key=write_key)
+    return print("MIPS written successfully")
+
+
+for item, link in cms_gen_links.items():
     try:
         del df
     except:
