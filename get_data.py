@@ -11,6 +11,7 @@ import pandas as pd
 import boto3 as b3
 import yaml
 import io
+from extraction_processing import update_general_payments
 
 with open('./config.yaml', "r") as fl:
     config = yaml.safe_load(fl)
@@ -77,7 +78,7 @@ for item, link in cms_gen_links.items():
     except:
         pass
     df = pd.read_csv(link[1], usecols=config['cms_columns'])
-    # df_sliced = df[config['cms_columns']]
+    df = update_general_payments(df)
     print("successfully pulled data and generated content")
     print("writing to S3")
     csv_buffer = io.BytesIO()
