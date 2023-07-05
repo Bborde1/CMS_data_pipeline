@@ -15,11 +15,15 @@ def update_general_payments(general_df):
     general_df = general_df[general_df['Covered_Recipient_First_Name'].notnull()]
     general_df = general_df[general_df['Covered_Recipient_Last_Name'].notnull()]
     general_df = general_df[general_df['Recipient_Primary_Business_Street_Address_Line1'].notnull()]
+    general_df['Recipient_Primary_Business_Street_Address_Line2'] = general_df[
+        'Recipient_Primary_Business_Street_Address_Line2'].fillna("")
+    general_df['Recipient_Primary_Business_Street_Address_Line2'] = general_df[
+        'Recipient_Primary_Business_Street_Address_Line2'].astype(str)
 
     # concatenate addresses into one address
     # note: corrects for any recipients at the same address, but in different suites
     general_df['Recipient_Primary_Business_Street_Address'] = general_df['Recipient_Primary_Business_Street_Address_Line1'] + \
-        general_df['Recipient_Primary_Business_Street_Address_Line1']
+        general_df['Recipient_Primary_Business_Street_Address_Line2']
 
     # generate unique geographic id
     general_df['geo_id'] = general_df['Recipient_Primary_Business_Street_Address'].map(

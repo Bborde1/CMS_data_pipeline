@@ -19,6 +19,7 @@ s3_user = config['cloud_acct']['aws_user']
 s3_key = config['cloud_acct']['aws_key']
 s3_bucket_name = config['cloud_acct']['bucket_name']
 s3_bucket_path = config['cloud_acct']['bucket_path']
+s3_mips_path = config['cloud_acct']['mips_path']
 
 
 ####Define script constants#######
@@ -64,25 +65,26 @@ def get_from_s3(to_get, bucket_location):
 
 # Gets Data, and slices before writing to S3
 
-def get_and_write_MIPS(bucket_location, write_key, aws_user=s3_user, aws_secret=s3_key, data_path="./mips_data/ec_score_file.csv"):
+def get_and_write_MIPS(bucket_location, write_key="mips_data.csv", aws_user=s3_user, aws_secret=s3_key, data_path="./mips_data/ec_score_file.csv"):
+    full_key = s3_mips_path + write_key
+    s3_client = b3.client('s3',  aws_access_key_id=aws_user,
+                          aws_secret_access_key=aws_secret)
     with open(data_path, "rb") as file:
-        s3_client = b3.client('s3',  aws_access_key_id=aws_user,
-                              aws_secret_access_key=aws_secret)
-        s3_client.upload_file(Body=file, Bucket=bucket_location, Key=write_key)
+        s3_client.upload_fileobj(file, bucket_location, full_key)
     return print("MIPS written successfully")
 
 
 for item, link in cms_gen_links.items():
-    try:
-        del df
-    except:
-        pass
     df = pd.read_csv(link[1], usecols=config['cms_columns'])
     df = update_general_payments(df)
     print("successfully pulled data and generated content")
+    # ONLY WRITE FIRST 100000 rows as a sample (AWS Free tier)
+    df = df.head(100000)
     print("writing to S3")
     csv_buffer = io.BytesIO()
     df.to_csv(csv_buffer)
     write_to_s3(csv_buffer.getvalue(), s3_bucket_name,
                 s3_bucket_path + link[0] + f'{item}_.csv')
     csv_buffer.close()
+print("Getting and writing MIPS")
+get_and_write_MIPS(s3_bucket_name)
