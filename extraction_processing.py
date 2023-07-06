@@ -32,13 +32,23 @@ def update_general_payments(general_df):
     return general_df
 
 
-def update_research_payments(columns_list, research_df):
-    # Get only columns that matter
-    updated_df = research_df[[columns_list]]
-    return updated_df
+def update_general_payments_sample(general_df):
+    # filter out observations with missing first name and last name
+    general_df = general_df[general_df['covered_recipient_first_name'].notnull()]
+    general_df = general_df[general_df['covered_recipient_last_name'].notnull()]
+    general_df = general_df[general_df['recipient_primary_business_street_address_line1'].notnull()]
+    general_df['recipient_primary_business_street_address_line2'] = general_df[
+        'recipient_primary_business_street_address_line2'].fillna("")
+    general_df['recipient_primary_business_street_address_line2'] = general_df[
+        'recipient_primary_business_street_address_line2'].astype(str)
 
+    # concatenate addresses into one address
+    # note: corrects for any recipients at the same address, but in different suites
+    general_df['recipient_primary_business_street_address'] = general_df['recipient_primary_business_street_address_line1'] + \
+        general_df['recipient_primary_business_street_address_line2']
 
-def update_ownership_payments(columns_list, ownership_df):
-    # Get only columns that matter
-    updated_df = ownership_df[[columns_list]]
-    return updated_df
+    # generate unique geographic id
+    general_df['geo_id'] = general_df['recipient_primary_business_street_address'].map(
+        generate_geo_id)
+
+    return general_df
