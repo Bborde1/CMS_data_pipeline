@@ -6,8 +6,8 @@ import requests
 import pandas as pd
 import io
 import yaml
-from get_data import write_to_s3, get_and_write_MIPS
-from extraction_processing import update_general_payments
+from extraction_funcs.get_data import write_to_s3, get_and_write_MIPS
+from extraction_funcs.extraction_processing import update_general_payments
 
 ###Handle AWS constants#####
 with open('./config.yaml', "r") as fl:

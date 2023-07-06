@@ -7,7 +7,7 @@ The goal is to maintain a lower storage footprint, and reduce extraction and loa
 import pandas as pd
 
 # import geo_id generation function
-from get_geo_id import generate_geo_id
+from extraction_funcs.get_geo_id import generate_geo_id
 
 
 def update_general_payments(general_df):

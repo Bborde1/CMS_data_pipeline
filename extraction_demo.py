@@ -1,10 +1,13 @@
+from extraction_funcs.get_data import write_to_s3, get_and_write_MIPS
+from extraction_funcs.extraction_processing import update_general_payments_sample
+import io
+import yaml
+import boto3 as b3
 import requests
 import pandas as pd
-import boto3 as b3
-import yaml
-import io
-from extraction_processing import update_general_payments, update_general_payments_sample
-from get_data import write_to_s3, get_and_write_MIPS
+print("imported pandas")
+
+print("Imports Complete")
 
 with open('./config.yaml', "r") as fl:
     config = yaml.safe_load(fl)
@@ -14,6 +17,7 @@ s3_bucket_name = config['cloud_acct']['bucket_name']
 s3_bucket_path = config['cloud_acct']['bucket_path']
 s3_mips_path = config['cloud_acct']['mips_path']
 
+print("Loaded Config")
 
 ###API implementation###
 # Define CMS dataset IDs
@@ -22,6 +26,7 @@ cms_datasets = {'gen_2020': ['general_payment/', 'a08c4b30-5cf3-4948-ad40-36f404
 
 if __name__ == "__main__":
     for item, cms_id in cms_datasets.items():
+        print(f"Extracting {item}.")
         request_url = f'https://openpaymentsdata.cms.gov/api/1/datastore/query/{cms_id[1]}/0?limit=500&offset=0&count=true&results=true&schema=true&keys=true&format=json&rowIds=false'
         results = requests.get(request_url)
         content = results.json()
