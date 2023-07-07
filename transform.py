@@ -52,6 +52,7 @@ def tf_cms(df, dropdup=False):
     df["Time_ID"] = df["Date_of_Payment"].map(generate_time_id)
     df["Recipient_Address"] = (
         df["Recipient_Primary_Business_Street_Address_Line1"]
+        + " "
         + df["Recipient_Primary_Business_Street_Address_Line2"]
         + " "
         + df["Recipient_Zip_Code"]
