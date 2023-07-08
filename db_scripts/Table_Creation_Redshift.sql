@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS dataSwan.dimPaymentTime (
 );
 
 CREATE TABLE IF NOT EXISTS dataSwan.dimGeography (
-    Geo_ID INTEGER NOT NULL PRIMARY KEY,
+    Geo_ID VARCHAR(40) NOT NULL PRIMARY KEY,
     City VARCHAR(50) NOT NULL,
     State VARCHAR(50) NOT NULL,
     Street_Address_Line1 VARCHAR(100) NOT NULL,
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS dataSwan.factPayment (
 );
 
 CREATE TABLE IF NOT EXISTS dataSwan.factRating (
-    RatingID INTEGER NOT NULL PRIMARY KEY,
+    RatingID VARCHAR(40) NOT NULL PRIMARY KEY,
     Physician_NPI INTEGER NOT NULL,
     NumericalRating DOUBLE PRECISION NOT NULL,
     CONSTRAINT fk_factRating_physician_npi FOREIGN KEY (Physician_NPI)
