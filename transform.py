@@ -165,6 +165,7 @@ def tf_dimGeography(
     cols=[
         "Geo_ID",
         "Recipient_Primary_Business_Street_Address_Line1",
+        "Recipient_Primary_Business_Street_Address_Line2",
         "Recipient_City",
         "Recipient_State",
         "Recipient_Zip_Code",
@@ -240,11 +241,8 @@ if __name__ == "__main__":
     rawcms_2020 = get_from_s3(payments_files[0], s3_bucket_name, s3_raw_path)
     rawcms_2021 = get_from_s3(payments_files[1], s3_bucket_name, s3_raw_path)
     rawmips = get_from_s3("mips_data.csv", s3_bucket_name, s3_mips_path)
-    # rawcms = pd.read_csv("gen_2020_.csv", nrows=100000)
-    # rawmips = pd.read_csv("./mips_data/ec_score_file.csv")
-    cms_2020 = tf_cms(rawcms_2020)
-    cms_2021 = tf_cms(rawcms_2021)
-    cms = pd.concat([cms_2020, cms_2021])
+    cms = pd.concat([rawcms_2020, rawcms_2021])
+    cms = tf_cms(cms)
     processed_dataframes = {}
     try:
         factPayment = tf_factPayment(cms)
@@ -273,13 +271,14 @@ if __name__ == "__main__":
     except:
         pass
     try:
-        dimPaymentTime = tf_dimPaymentTime(cms)
+        cms_time = cms.drop_duplicates(['Time_ID', 'Date_of_Payment'])
+        dimPaymentTime = tf_dimPaymentTime(cms_time)
         processed_dataframes['dimPaymentTime'] = dimPaymentTime
     except:
         pass
     for table, data in processed_dataframes.items():
         write_buffer = io.BytesIO()
-        data.to_csv(write_buffer)
+        data.to_csv(write_buffer, index=False)
         write_to_s3(write_buffer.getvalue(), s3_bucket_name,
-                    s3_processed_path + f'{table}.csv', s3_user, s3_key)
+                    s3_processed_path + f'{table}_.csv', s3_user, s3_key)
         write_buffer.close()

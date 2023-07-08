@@ -31,6 +31,7 @@ if __name__ == "__main__":
         results = requests.get(request_url)
         content = results.json()
         df = pd.DataFrame.from_dict(content['results'])
+        # df.columns = [x.str.title() for x in df.columns]
         df = df[[x.lower() for x in config['cms_columns']]]
         df = update_general_payments_sample(df)
         print("writing to S3")
