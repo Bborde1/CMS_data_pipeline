@@ -14,7 +14,7 @@ with open('./config.yaml', "r") as fl:
 s3_user = config['cloud_acct']['aws_user']
 s3_key = config['cloud_acct']['aws_key']
 s3_bucket_name = config['cloud_acct']['bucket_name']
-s3_bucket_path = config['cloud_acct']['bucket_path']
+s3_raw_path = config['cloud_acct']['raw_path']
 s3_mips_path = config['cloud_acct']['mips_path']
 
 print("Loaded Config")

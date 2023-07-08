@@ -18,7 +18,7 @@ with open('./config.yaml', "r") as fl:
 s3_user = config['cloud_acct']['aws_user']
 s3_key = config['cloud_acct']['aws_key']
 s3_bucket_name = config['cloud_acct']['bucket_name']
-s3_bucket_path = config['cloud_acct']['bucket_path']
+s3_raw_path = config['cloud_acct']['raw_path']
 s3_mips_path = config['cloud_acct']['mips_path']
 
 
@@ -45,11 +45,12 @@ def write_to_s3(to_write, bucket_location, write_key, aws_user=s3_user, aws_secr
     return print("Successfully wrote to S3 Bucket")
 
 
-def get_from_s3(to_get, bucket_location):
+def get_from_s3(to_get, bucket_location, get_key, aws_user=s3_user, aws_secret=s3_key):
     # AWS with client object
-    s3_client = b3.client('s3',  aws_access_key_id=s3_user,
-                          aws_secret_access_key=s3_key)
-    response = s3_client.get_object(Bucket=bucket_location, Key=to_get)['Body']
+    s3_client = b3.client('s3',  aws_access_key_id=aws_user,
+                          aws_secret_access_key=aws_secret)
+    response = s3_client.get_object(
+        Bucket=bucket_location, Key=get_key + to_get)['Body']
     df = pd.read_csv(io.BytesIO(response.read()))
     return df
 

@@ -2,6 +2,19 @@ import pandas as pd
 import numpy as np
 import uuid
 import hashlib
+import io
+import yaml
+from extraction_funcs.get_data import write_to_s3, get_from_s3
+
+
+with open('./config.yaml', "r") as fl:
+    config = yaml.safe_load(fl)
+s3_user = config['cloud_acct']['aws_user']
+s3_key = config['cloud_acct']['aws_key']
+s3_bucket_name = config['cloud_acct']['bucket_name']
+s3_raw_path = config['cloud_acct']['raw_path']
+s3_processed_path = config['cloud_acct']['processed_path']
+s3_mips_path = config['cloud_acct']['mips_path']
 
 
 def generate_geo_id(address):
@@ -47,6 +60,7 @@ def tf_cms(df, dropdup=False):
         "Product_Category_or_Therapeutic_Area_1",
     ]
     for col in PROPERNAMES:
+        df[col].fillna("", inplace=True)
         df[col] = df[col].str.title()
 
     df["Time_ID"] = df["Date_of_Payment"].map(generate_time_id)
@@ -57,7 +71,8 @@ def tf_cms(df, dropdup=False):
         + " "
         + df["Recipient_Zip_Code"]
     )
-    df["Geo_ID"] = df["Recipient_Address"].apply(lambda x: generate_geo_id(str(x)))
+    df["Geo_ID"] = df["Recipient_Address"].apply(
+        lambda x: generate_geo_id(str(x)))
 
     if dropdup:
         df.drop_duplicates(inplace=True)
@@ -70,7 +85,8 @@ def tf_dimPaymentTime(df, cols=["Time_ID", "Date_of_Payment"]):
     Input: transformed data as the output of the tf_cms function
     Output: dimension table dimPaymentTime
     """
-    dimPaymentTime = df.loc[df.Date_of_Payment.notnull(), cols].drop_duplicates()
+    dimPaymentTime = df.loc[df.Date_of_Payment.notnull(),
+                            cols].drop_duplicates()
     dimPaymentTime["Date_of_Payment"] = pd.to_datetime(df["Date_of_Payment"])
     dimPaymentTime["Payment_Day"] = dimPaymentTime["Date_of_Payment"].dt.day
     dimPaymentTime["Payment_Month"] = dimPaymentTime["Date_of_Payment"].dt.month
@@ -93,7 +109,8 @@ def tf_dimPhysician(
     Input: transformed data as the output of the tf_cms function
     Output: dimension table dimPhysician
     """
-    dimPhysician = df.loc[df.Covered_Recipient_NPI.notnull(), cols].drop_duplicates()
+    dimPhysician = df.loc[df.Covered_Recipient_NPI.notnull(),
+                          cols].drop_duplicates()
     dimPhysician.Covered_Recipient_NPI = dimPhysician.Covered_Recipient_NPI.astype(
         "int"
     )
@@ -123,7 +140,8 @@ def tf_dimService(
 
 
 def tf_dimTeachingHospital(
-    df, cols=["Teaching_Hospital_ID", "Teaching_Hospital_CCN", "Teaching_Hospital_Name"]
+    df, cols=["Teaching_Hospital_ID",
+              "Teaching_Hospital_CCN", "Teaching_Hospital_Name"]
 ):
     """
     Input: transformed data as the output of the tf_cms function
@@ -217,11 +235,43 @@ def tf_factRating(df, cols=["NPI", "Org_PAC_ID", "source", "final_MIPS_score"]):
 
 if __name__ == "__main__":
     rawcms = pd.read_csv("gen_2020_.csv", nrows=100000)
+    rawmips = pd.read_csv("./mips_data/ec_score_file.csv")
     cms = tf_cms(rawcms)
-    factPayment = tf_factPayment(cms)
-    dimGeography = tf_dimGeography(cms)
-    dimTeachingHospital = tf_dimTeachingHospital(cms)
-    dimService = tf_dimService(cms)
-    dimPhysician = tf_dimPhysician(cms)
-    dimPaymentTime = tf_dimPaymentTime(cms)
-    rawmips = pd.read_csv("ec_score_file.csv")
+    processed_dataframes = {}
+    try:
+        factPayment = tf_factPayment(cms)
+        processed_dataframes['factPayment'] = factPayment
+    except:
+        pass
+
+    try:
+        dimGeography = tf_dimGeography(cms)
+        processed_dataframes['dimGeography'] = dimGeography
+    except:
+        pass
+    try:
+        dimTeachingHospital = tf_dimTeachingHospital(cms)
+        processed_dataframes['dimTeachingHospital'] = dimTeachingHospital
+    except:
+        pass
+    try:
+        dimService = tf_dimService(cms)
+        processed_dataframes['dimService'] = dimService
+    except:
+        pass
+    try:
+        dimPhysician = tf_dimPhysician(cms)
+        processed_dataframes['dimPhysician'] = dimPhysician
+    except:
+        pass
+    try:
+        dimPaymentTime = tf_dimPaymentTime(cms)
+        processed_dataframes['dimPaymentTime'] = dimPaymentTime
+    except:
+        pass
+    for table, data in processed_dataframes.items():
+        write_buffer = io.BytesIO()
+        data.to_csv(write_buffer)
+        write_to_s3(write_buffer.getvalue(), s3_bucket_name,
+                    s3_processed_path + f'{table}.csv')
+        write_buffer.close()
