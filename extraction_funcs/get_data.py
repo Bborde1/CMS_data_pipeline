@@ -62,39 +62,3 @@ def get_and_write_MIPS(bucket_location, write_key="mips_data.csv", aws_user=s3_u
     with open(data_path, "rb") as file:
         s3_client.upload_fileobj(file, bucket_location, full_key)
     return print("MIPS written successfully")
-
-
-# for item, link in cms_gen_links.items():
-#     df = pd.read_csv(link[1], usecols=config['cms_columns'])
-#     df = update_general_payments(df)
-#     print("successfully pulled data and generated content")
-#     # ONLY WRITE FIRST 100000 rows as a sample (AWS Free tier)
-#     df = df.head(100000)
-#     print("writing to S3")
-#     csv_buffer = io.BytesIO()
-#     df.to_csv(csv_buffer)
-#     write_to_s3(csv_buffer.getvalue(), s3_bucket_name,
-#                 s3_bucket_path + link[0] + f'{item}_.csv')
-#     csv_buffer.close()
-# print("Getting and writing MIPS")
-# get_and_write_MIPS(s3_bucket_name)
-
-
-# ###API implementation###
-# # Define CMS dataset IDs
-# cms_datasets = {'gen_2020': ['general_payment/', 'a08c4b30-5cf3-4948-ad40-36f404619019'],
-#                 'gen_2021': ['general_payment/', '0380bbeb-aea1-58b6-b708-829f92a48202']}
-
-# for item, cms_id in cms_datasets.items():
-#     request_url = f'https://openpaymentsdata.cms.gov/api/1/datastore/query/{cms_id[1]}/0?limit=500&offset=0&count=true&results=true&schema=true&keys=true&format=json&rowIds=false'
-#     results = requests.get(request_url)
-#     content = results.json()
-#     df = pd.DataFrame.from_dict(content['results'])
-#     df = df[[x.lower() for x in config['cms_columns']]]
-#     df = update_general_payments_sample(df)
-#     print("writing to S3")
-#     csv_buffer = io.BytesIO()
-#     df.to_csv(csv_buffer)
-#     write_to_s3(csv_buffer.getvalue(), s3_bucket_name,
-#                 s3_bucket_path + cms_id[0] + f'{item}_.csv')
-#     csv_buffer.close()

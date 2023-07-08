@@ -37,6 +37,6 @@ if __name__ == "__main__":
         csv_buffer = io.BytesIO()
         df.to_csv(csv_buffer)
         write_to_s3(csv_buffer.getvalue(), s3_bucket_name,
-                    s3_bucket_path + cms_id[0] + f'{item}_.csv')
+                    s3_raw_path + cms_id[0] + f'{item}_.csv', s3_user, s3_key)
         csv_buffer.close()
     get_and_write_MIPS(bucket_location=s3_bucket_name)

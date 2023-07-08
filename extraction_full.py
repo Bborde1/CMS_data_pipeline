@@ -20,7 +20,7 @@ s3_raw_path = config['cloud_acct']['raw_path']
 
 
 ####Define script constants####
-cms_gen_links = {'gen_2020': ['general_payment', 'https://download.cms.gov/openpayments/PGYR20_P012023/OP_DTL_GNRL_PGYR2020_P01202023.csv'],
+cms_gen_links = {'gen_2020': ['general_payment/', 'https://download.cms.gov/openpayments/PGYR20_P012023/OP_DTL_GNRL_PGYR2020_P01202023.csv'],
                  'gen_2021': ['general_payment/', 'https://download.cms.gov/openpayments/PGYR21_P012023/OP_DTL_GNRL_PGYR2021_P01202023.csv']}
 
 print("Variables loaded")
@@ -37,6 +37,6 @@ if __name__ == "__main__":
         csv_buffer = io.BytesIO()
         df.to_csv(csv_buffer)
         write_to_s3(csv_buffer.getvalue(), s3_bucket_name,
-                    s3_raw_path + link[0] + f'{item}_.csv')
+                    s3_raw_path + link[0] + f'{item}_.csv', s3_user, s3_key)
         csv_buffer.close()
     get_and_write_MIPS(s3_bucket_name)
