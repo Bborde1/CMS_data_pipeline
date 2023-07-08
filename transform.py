@@ -234,9 +234,17 @@ def tf_factRating(df, cols=["NPI", "Org_PAC_ID", "source", "final_MIPS_score"]):
 
 
 if __name__ == "__main__":
-    rawcms = pd.read_csv("gen_2020_.csv", nrows=100000)
-    rawmips = pd.read_csv("./mips_data/ec_score_file.csv")
-    cms = tf_cms(rawcms)
+    payments_files = ["general_payment/gen_2020_.csv",
+                      "general_payment/gen_2021_.csv"]
+    # Get CMS payments files from S3
+    rawcms_2020 = get_from_s3(payments_files[0], s3_bucket_name, s3_raw_path)
+    rawcms_2021 = get_from_s3(payments_files[1], s3_bucket_name, s3_raw_path)
+    rawmips = get_from_s3("mips_data.csv", s3_bucket_name, s3_mips_path)
+    # rawcms = pd.read_csv("gen_2020_.csv", nrows=100000)
+    # rawmips = pd.read_csv("./mips_data/ec_score_file.csv")
+    cms_2020 = tf_cms(rawcms_2020)
+    cms_2021 = tf_cms(rawcms_2021)
+    cms = pd.concat([cms_2020, cms_2021])
     processed_dataframes = {}
     try:
         factPayment = tf_factPayment(cms)
@@ -273,5 +281,5 @@ if __name__ == "__main__":
         write_buffer = io.BytesIO()
         data.to_csv(write_buffer)
         write_to_s3(write_buffer.getvalue(), s3_bucket_name,
-                    s3_processed_path + f'{table}.csv')
+                    s3_processed_path + f'{table}.csv', s3_user, s3_key)
         write_buffer.close()
