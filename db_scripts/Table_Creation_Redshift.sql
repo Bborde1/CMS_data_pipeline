@@ -4,45 +4,51 @@ CREATE SCHEMA IF NOT EXISTS dataSwan;
 -- Create dimension tables
 CREATE TABLE IF NOT EXISTS dataSwan.dimService (
     Record_ID INTEGER NOT NULL PRIMARY KEY,
-    Covered_Recipient_Type VARCHAR(40) NOT NULL,
-    Product_Category_Therapeutic_Area VARCHAR(20) NOT NULL
+    Covered_Recipient_Type VARCHAR(40),
+    Product_Category_Therapeutic_Area VARCHAR(20)
 );
 
 CREATE TABLE IF NOT EXISTS dataSwan.dimPhysician (
     Physician_NPI INTEGER NOT NULL PRIMARY KEY,
-    FirstName VARCHAR(50) NOT NULL,
-    LastName VARCHAR(50) NOT NULL,
-    Specialty VARCHAR(300) NOT NULL
+    FirstName VARCHAR(50),
+    LastName VARCHAR(50),
+    Specialty VARCHAR(300)
 );
 
 CREATE TABLE IF NOT EXISTS dataSwan.dimTeachingHospital (
     Teaching_Hospital_ID INTEGER NOT NULL PRIMARY KEY,
-    Teaching_Hospital_CNN INTEGER NOT NULL,
-    Teaching_Hospital_Name VARCHAR(50) NOT NULL
+    Teaching_Hospital_CNN INTEGER,
+    Teaching_Hospital_Name VARCHAR(50)
 );
 
 CREATE TABLE IF NOT EXISTS dataSwan.dimPaymentTime (
     Time_ID INTEGER NOT NULL PRIMARY KEY,
-    Date_of_Payment DATE NOT NULL
+    Date_of_Payment DATE,
+    Day INTEGER,
+    Month INTEGER,
+    Year INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS dataSwan.dimGeography (
     Geo_ID VARCHAR(40) NOT NULL PRIMARY KEY,
-    City VARCHAR(50) NOT NULL,
-    State VARCHAR(50) NOT NULL,
-    Street_Address_Line1 VARCHAR(100) NOT NULL,
-    Street_Address_Line2 VARCHAR(50) NOT NULL
+    Recipient_Street_Address_Line1 VARCHAR(100),
+    Recipient_Street_Address_Line2 VARCHAR(50),
+    Recipient_City VARCHAR(50),
+    Recipient_State VARCHAR(50),
+    Recipient_Zip_Code VARCHAR(10)
+
 );
 
 -- Create fact tables
 CREATE TABLE IF NOT EXISTS dataSwan.factPayment (
     Payment_ID INTEGER NOT NULL PRIMARY KEY,
-    Time_ID INTEGER NOT NULL,
-    Physician_NPI INTEGER NOT NULL,
-    Record_ID INTEGER NOT NULL,
-    Geo_ID INTEGER NOT NULL,
-    Teaching_Hospital_ID INTEGER NOT NULL,
-    Total_Amount_of_Payment_USDollars DOUBLE PRECISION NOT NULL,
+    Time_ID INTEGER,
+    Physician_NPI INTEGER,
+    Record_ID INTEGER,
+    Geo_ID INTEGER,
+    Teaching_Hospital_ID INTEGER,
+    Total_Amount DOUBLE PRECISION,
+    Number_of_Payments INTEGER,
     CONSTRAINT fk_factPayment_teaching_hospital_id FOREIGN KEY (Teaching_Hospital_ID)
         REFERENCES dataSwan.dimTeachingHospital (Teaching_Hospital_ID),
     CONSTRAINT fk_factPayment_physician_npi FOREIGN KEY (Physician_NPI)
@@ -56,9 +62,11 @@ CREATE TABLE IF NOT EXISTS dataSwan.factPayment (
 );
 
 CREATE TABLE IF NOT EXISTS dataSwan.factRating (
-    RatingID VARCHAR(40) NOT NULL PRIMARY KEY,
-    Physician_NPI INTEGER NOT NULL,
-    NumericalRating DOUBLE PRECISION NOT NULL,
+    Rating_ID VARCHAR(40) NOT NULL PRIMARY KEY,
+    Physician_NPI INTEGER,
+    Org_PAC_ID INTEGER,
+    Source VARCHAR(20),
+    Final_MIPS_Score DOUBLE PRECISION,
     CONSTRAINT fk_factRating_physician_npi FOREIGN KEY (Physician_NPI)
         REFERENCES dataSwan.dimPhysician (Physician_NPI)
 );
