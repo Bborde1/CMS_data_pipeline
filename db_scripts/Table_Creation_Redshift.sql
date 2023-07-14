@@ -30,11 +30,11 @@ CREATE TABLE IF NOT EXISTS dataSwan.dimPaymentTime (
 );
 
 CREATE TABLE IF NOT EXISTS dataSwan.dimGeography (
-    Geo_ID VARCHAR(40) NOT NULL PRIMARY KEY,
-    Recipient_Street_Address_Line1 VARCHAR(100),
+    Geo_ID VARCHAR(100) NOT NULL PRIMARY KEY,
+    Recipient_Street_Address_Line1 VARCHAR(200),
     Recipient_Street_Address_Line2 VARCHAR(50),
-    Recipient_City VARCHAR(50),
-    Recipient_State VARCHAR(50),
+    Recipient_City VARCHAR(100),
+    Recipient_State VARCHAR(40),
     Recipient_Zip_Code VARCHAR(10)
 
 );
