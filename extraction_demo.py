@@ -5,8 +5,6 @@ import yaml
 import boto3 as b3
 import requests
 import pandas as pd
-print("imported pandas")
-
 print("Imports Complete")
 
 with open('./config.yaml', "r") as fl:
@@ -31,9 +29,14 @@ if __name__ == "__main__":
         results = requests.get(request_url)
         content = results.json()
         df = pd.DataFrame.from_dict(content['results'])
-        # df.columns = [x.str.title() for x in df.columns]
-        df = df[[x.lower() for x in config['cms_columns']]]
-        df = update_general_payments_sample(df)
+        df.columns = [x.title() for x in df.columns]
+        df.rename(columns={'Teaching_Hospital_Ccn': 'Teaching_Hospital_CCN', 'Teaching_Hospital_Id':
+                  'Teaching_Hospital_ID', 'Covered_Recipient_Npi': 'Covered_Recipient_NPI',
+                           'Total_Amount_Of_Payment_Usdollars': 'Total_Amount_of_Payment_USDollars',
+                           'Date_Of_Payment': 'Date_of_Payment', 'Number_Of_Payments_Included_In_Total_Amount': 'Number_of_Payments_Included_in_Total_Amount',
+                           'Record_Id': 'Record_ID', 'Product_Category_Or_Therapeutic_Area_1': 'Product_Category_or_Therapeutic_Area_1',
+                           'Applicable_Manufacturer_Or_Applicable_Gpo_Making_Payment_Id': 'Applicable_Manufacturer_or_Applicable_GPO_Making_Payment_ID'}, inplace=True)
+        df = df[config['cms_columns']]
         print("writing to S3")
         csv_buffer = io.BytesIO()
         df.to_csv(csv_buffer)

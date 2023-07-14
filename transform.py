@@ -226,6 +226,7 @@ def tf_mips(df):
 
 
 def tf_factRating(df, cols=["NPI", "Org_PAC_ID", "source", "final_MIPS_score"]):
+    df["NPI"] = df["NPI"].astype(int)
     factRating = df[cols].drop_duplicates()
     factRating["Rating_ID"] = factRating["final_MIPS_score"].map(
         lambda x: str(uuid.uuid4())
@@ -275,6 +276,13 @@ if __name__ == "__main__":
         dimPaymentTime = tf_dimPaymentTime(cms_time)
         processed_dataframes['dimPaymentTime'] = dimPaymentTime
     except:
+        pass
+    try:
+        factRating = tf_mips(rawmips)
+        factRating = tf_factRating(factRating)
+        processed_dataframes['factRating'] = factRating
+    except Exception as e:
+        print(e)
         pass
     for table, data in processed_dataframes.items():
         write_buffer = io.BytesIO()

@@ -28,10 +28,11 @@ if __name__ == "__main__":
     # Gets the data and writes to S3 bucket
     for item, link in cms_gen_links.items():
         print(f"Reading {item} from source.")
-        df = pd.read_csv(link[1], usecols=config['cms_columns'])
+        df = pd.read_csv(
+            link[1], usecols=config['cms_columns'], engine='pyarrow')
         df = update_general_payments(df)
         # ONLY WRITE FIRST 50000 rows as a sample (AWS Free tier)
-        df = df.head(50000)
+        df = df.head(250000)
         print("successfully pulled data and generated content")
         print("writing to S3")
         csv_buffer = io.BytesIO()
